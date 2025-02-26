@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+python-nmap
+requests
+jinja2
+openai==0.28.0
