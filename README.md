@@ -1,63 +1,124 @@
-AI-Powered SOC Assistant
-By Sorbarikor Inene
+# Authorized Network Risk Explainer
 
-This tool automatically scans a device for open ports and explains potential risks in plain language using AI (via ChatGPT).
+[![CI](https://github.com/soin8293/ai_soc_assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/soin8293/ai_soc_assistant/actions)
 
-Features
-	Automated Port Scanning: Uses Nmap to detect open ports.
-	AI-Driven Analysis: Provides simple risk explanations from ChatGPT.
-	User-Friendly Interface: One-click scan with results displayed in plain language.
+A bounded educational Python/FastAPI prototype that performs a limited Nmap
+scan on an explicitly authorized loopback or private-network IP address and
+turns normalized open-port metadata into cautious, plain-language guidance.
 
-Setup
- Install Dependencies:
-	pip install -r requirements.txt
+This repository began as `ai_soc_assistant`, but it is **not** a security
+operations center, vulnerability scanner, incident-detection system, or
+complete security assessment.
 
- Run the Application:
-	uvicorn main:app --reload
-	python -m uvicorn main:app --reload (Powershell)
+## What it demonstrates
 
- Access the Interface:
-	Open a web browser and navigate to http://127.0.0.1:8000.
-	
-Usage
- Click the "Scan" button to detect open ports on your device.
- The tool will generate a report explaining potential risks and recommendations.
+- Server-side validation of literal IP targets against a narrow allowlist
+- Explicit confirmation that the caller is authorized to scan the target
+- A limited Nmap top-100-port profile without scripts or exploitation
+- Normalization of untrusted scan metadata before model input
+- OpenAI Responses API integration with `store=False`
+- A deterministic local explanation when no API key is configured
+- Tests that use a fake scanner and never scan a network or call OpenAI
+- Plain-text browser rendering to avoid injecting model output as HTML
 
-API Configuration
-	ChatGPT API: Replace OPENAI_API_KEY with your OpenAI API key for analysis.
+The OpenAI integration follows the official
+[Responses API](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
+shape and reads credentials from `OPENAI_API_KEY` rather than source code.
 
-Notes
- Educational Use: This tool is for learning purposes. Always test on authorized networks.
- API Limits: Be aware of rate limits for APIs (e.g., OpenAI GPT-4 has usage costs).
- 
----------------------------------------------------------------------------------------------------------
-nmap Installation Guide
- The python-nmap library requires the nmap command-line tool to be installed and accessible in your system's PATH.
+## Safety boundary
 
-Windows Users
-	Download nmap:
-	 Get the Windows binary from nmap.org.
-	 Choose the Stable Windows Installer (e.g., nmap-7.94-setup.exe).
-	Install nmap:
-	 Run the installer and follow the prompts.
-	 During installation, note the installation directory (default: C:\Program Files\nmap).
-	Add nmap to PATH:
-	 Right-click This PC > Properties > Advanced system settings > Environment Variables.
-	 Under System variables, find Path and click Edit.
-	 Add the nmap installation directory (e.g., C:\Program Files\nmap).
-	 Click OK and restart your terminal.
-	Verify Installation:
-	 powershellCopy
-	 nmap -v
-	Expected output:
-	 Starting Nmap 7.94 ( https://nmap.org ) at 2024-07-26 10:00 EDT  
+The backend accepts only:
 
-Linux/macOS Users
-	bashCopy
-	sudo apt-get install nmap  # Debian/Ubuntu  
-	# or  
-	brew install nmap  # macOS (Homebrew)  
+- IPv4 loopback (`127.0.0.0/8`)
+- RFC1918 IPv4 (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`)
+- IPv6 loopback (`::1`)
+- IPv6 unique-local addresses (`fc00::/7`)
 
-Troubleshooting
-	"nmap program was not found in path": Ensure nmap is installed and its directory is in your system's PATH.
-	Permission Issues: Run PowerShell as Administrator when modifying PATH.
+Hostnames, public IPs, and link-local IPs are rejected. This allowlist reduces
+risk but does not grant permission: use the tool only on systems you own or are
+explicitly authorized to test.
+
+## Architecture
+
+```text
+browser form
+    │ target + authorization confirmation
+    ▼
+FastAPI validation ── rejects hostnames/public targets
+    │
+    ▼
+limited Nmap scan ── normalizes open port/protocol/service fields
+    │
+    ├── no OPENAI_API_KEY ── deterministic local guidance
+    │
+    └── configured key ── OpenAI Responses API ── plain-text explanation
+```
+
+## Setup
+
+Install the Nmap command-line tool first. Then:
+
+```bash
+git clone https://github.com/soin8293/ai_soc_assistant.git
+cd ai_soc_assistant
+python -m venv .venv
+# Activate .venv using the command for your shell.
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
+
+Open <http://127.0.0.1:8000>. Without an OpenAI key, the application remains
+usable and returns a local rule-based explanation.
+
+For model-assisted explanations:
+
+```bash
+# Copy .env.example values into your shell or secret manager.
+export OPENAI_API_KEY="your-project-key"
+export OPENAI_MODEL="gpt-4.1-mini"
+```
+
+PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY = "your-project-key"
+$env:OPENAI_MODEL = "gpt-4.1-mini"
+```
+
+Never commit a real key. `.env` files are excluded; `.env.example` contains
+placeholders only.
+
+## Tests
+
+```bash
+python -m pip install -r requirements.txt -r requirements-dev.txt
+python -m pytest -q
+```
+
+The test suite verifies target boundaries, normalized scan output, local
+fallback behavior, and authorization enforcement. It uses no real network scan
+and no OpenAI request.
+
+## Limitations
+
+- An open port is not automatically a vulnerability.
+- Only Nmap's top 100 ports are checked; results are intentionally incomplete.
+- Service names are scanner hints, not verified software identity or version.
+- Model explanations can be incomplete or wrong and must be verified.
+- No authentication, multi-user isolation, persistence, rate limiting,
+  production deployment, or formal security review is provided.
+
+## AI-assistance disclosure
+
+The 2026 safety and API modernization was produced with OpenAI Codex assistance
+at Sorbarikor Inene's direction. Portfolio descriptions should continue to
+distinguish the original educational prototype, AI-assisted implementation,
+and independently verified test results.
+
+## Author
+
+Sorbarikor Inene — [@soin8293](https://github.com/soin8293)
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).
