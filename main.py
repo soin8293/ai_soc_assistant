@@ -38,7 +38,7 @@ ALLOWED_NETWORKS = tuple(
     )
 )
 
-app = FastAPI(title="Authorized Network Risk Explainer", version="0.2.0")
+app = FastAPI(title="Authorized Network Risk Explainer", version="0.3.0")
 templates = Jinja2Templates(directory="templates")
 
 
@@ -63,8 +63,10 @@ def validate_target(target: str) -> str:
 
 
 def _safe_service(value: Any) -> str:
-    text = str(value or "unknown")[:40]
-    return re.sub(r"[^A-Za-z0-9._/+ -]", "?", text)
+    text = str(value or "unknown")
+    if len(text) > 24 or not re.fullmatch(r"[A-Za-z0-9._/+_-]+", text):
+        return "unknown"
+    return text
 
 
 def perform_port_scan(target: str, scanner: Any | None = None) -> dict[str, Any]:
@@ -103,8 +105,10 @@ def local_explanation(scan_data: dict[str, Any]) -> str:
 
     lines = ["Open ports identified by the limited scan:"]
     for item in ports:
+        service = _safe_service(item.get("service"))
+        protocol = _safe_service(item.get("protocol"))
         lines.append(
-            f"- {item['port']}/{item['protocol']} ({item['service']}): "
+            f"- {int(item['port'])}/{protocol} ({service}): "
             "confirm the service is expected, patched, authenticated, and access-restricted."
         )
     lines.append(

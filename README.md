@@ -20,6 +20,7 @@ complete security assessment.
 - A deterministic local explanation when no API key is configured
 - Tests that use a fake scanner and never scan a network or call OpenAI
 - Plain-text browser rendering to avoid injecting model output as HTML
+- Synthetic explanation fixtures and an inspectable offline quality evaluator
 
 The OpenAI integration follows the official
 [Responses API](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
@@ -98,6 +99,18 @@ python -m pytest -q
 The test suite verifies target boundaries, normalized scan output, local
 fallback behavior, and authorization enforcement. It uses no real network scan
 and no OpenAI request.
+
+Run the synthetic explanation benchmark separately:
+
+```bash
+python scripts/run_evaluation.py
+```
+
+The committed `results/local-baseline.json` records the deterministic baseline.
+The score is a diagnostic summary—not a validated scientific instrument—and
+the case-level findings remain the primary evidence. See
+[`docs/threat-model.md`](docs/threat-model.md) for trust boundaries and residual
+risk.
 
 ## Limitations
 
