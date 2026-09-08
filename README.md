@@ -1,4 +1,4 @@
-# Authorized Network Risk Explainer
+# AI SOC Assistant
 
 [![CI](https://github.com/soin8293/ai_soc_assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/soin8293/ai_soc_assistant/actions)
 
@@ -6,7 +6,7 @@ A bounded educational Python/FastAPI prototype that performs a limited Nmap
 scan on an explicitly authorized loopback or private-network IP address and
 turns normalized open-port metadata into cautious, plain-language guidance.
 
-This repository began as `ai_soc_assistant`, but it is **not** a security
+SOC stands for security operations center. This educational assistant is **not** a security
 operations center, vulnerability scanner, incident-detection system, or
 complete security assessment.
 
