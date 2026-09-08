@@ -38,7 +38,7 @@ ALLOWED_NETWORKS = tuple(
     )
 )
 
-app = FastAPI(title="Authorized Network Risk Explainer", version="0.3.0")
+app = FastAPI(title="AI SOC Assistant", version="0.3.0")
 templates = Jinja2Templates(directory="templates")
 
 
