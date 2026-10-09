@@ -38,3 +38,7 @@ mistaken for proof of compromise or vulnerability.
 Internet scanning, exploitation, vulnerability confirmation, credential use,
 production multi-user deployment, and assurance against every prompt-injection
 strategy are outside this prototype.
+
+## Claim-rule context (October 2026 repair)
+
+The evaluator checks each occurrence of its listed strong claims. It exempts immediate explicit denials such as `not a confirmed vulnerability`, `does not prove a confirmed vulnerability`, and `no evidence of a confirmed vulnerability`. An affirmative occurrence elsewhere is still flagged. `not only` does not count as denial. Quotes, hedged claims and indirect denials remain flagged for review; the rule cannot determine their meaning. This is a bounded precision repair, not a general natural-language entailment check. The synthetic claim-context tests cover these distinctions separately from generator quality.
