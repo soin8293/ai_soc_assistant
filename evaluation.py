@@ -23,10 +23,20 @@ OVERCLAIMS = (
 # Only immediate, explicit denials are exempted. This is not semantic parsing:
 # quotes, uncertainty, indirect denials and paraphrases still need human review.
 DIRECT_DENIAL = re.compile(
-    r"\b(?:not|isn't|isn’t|aren't|aren’t|wasn't|wasn’t|weren't|weren’t|"
+    r"\b(?:not|no|isn't|isn’t|aren't|aren’t|wasn't|wasn’t|weren't|weren’t|"
     r"(?:does not|doesn't|doesn’t|cannot|can't|can’t)\s+(?:prove|confirm|establish|show)|"
     r"no evidence of)\s+(?:(?:a|an|the)\s+)?$"
 )
+
+
+# Contexts where an immediate denial cannot safely exempt the phrase.
+REVIEW_CONTEXT = re.compile(
+    r"\b(?:false|untrue|incorrect|wrong|whether|quote[ds]?|report(?:ed|s)?|says?|den(?:y|ies|ied|ying)|disputes?)\b"
+    r"|[\"“”]|(?<!\w)['‘]"
+)
+PLURALS = {"confirmed vulnerability": r"confirmed vulnerabilit(?:y|ies)",
+           "safe from attack": r"safe from attacks?",
+           "no security risk": r"no security risks?"}
 
 
 def asserted_phrases(text: str, phrases: tuple[str, ...]) -> list[str]:
@@ -34,8 +44,10 @@ def asserted_phrases(text: str, phrases: tuple[str, ...]) -> list[str]:
     text = text.lower()
     findings = []
     for phrase in phrases:
-        for match in re.finditer(r"\b" + re.escape(phrase) + r"\b", text):
-            if not DIRECT_DENIAL.search(text[:match.start()]):
+        pattern = PLURALS.get(phrase, re.escape(phrase))
+        for match in re.finditer(r"\b" + pattern + r"\b", text):
+            prefix = re.split(r"[.!?;\n]", text[:match.start()])[-1]
+            if REVIEW_CONTEXT.search(prefix) or not DIRECT_DENIAL.search(prefix):
                 findings.append(phrase)
                 break
     return findings

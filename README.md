@@ -10,6 +10,16 @@ SOC stands for security operations center. This educational assistant is **not**
 operations center, vulnerability scanner, incident-detection system, or
 complete security assessment.
 
+## Companion evaluation
+
+This application and the [Explainable Network Exposure Benchmark](https://github.com/soin8293/explainable-network-exposure-benchmark)
+form a connected network-security and AI-reliability study. The application
+normalizes authorized scan evidence and generates explanations; the standalone
+benchmark makes synthetic evaluation fixtures, dimensions and results inspectable.
+Each retains its own evaluator and scoring. Neither certifies security or proves
+production deployment. See [the engineering roadmap](docs/engineering-roadmap.md).
+
+
 ## What it demonstrates
 
 - Server-side validation of literal IP targets against a narrow allowlist
@@ -121,12 +131,16 @@ risk.
 - No authentication, multi-user isolation, persistence, rate limiting,
   production deployment, or formal security review is provided.
 
-## AI-assistance disclosure
+## AI assistance
 
-The 2026 safety and API modernization was produced with OpenAI Codex assistance
-at Sorbarikor Inene's direction. Portfolio descriptions should continue to
-distinguish the original educational prototype, AI-assisted implementation,
-and independently verified test results.
+The 2026 safety and API modernization was produced with OpenAI Codex
+assistance at the direction of soin8293. This disclosure distinguishes
+that work from the original educational prototype.
+
+The maintainer, soin8293, is responsible for project decisions and for reviewing
+and validating contributions. AI assistance does not establish correctness,
+security, or production readiness; consult the documented checks and
+limitations. Existing licenses and upstream credits remain applicable.
 
 ## Author
 
@@ -135,3 +149,7 @@ Sorbarikor Inene — [@soin8293](https://github.com/soin8293)
 ## License
 
 MIT. See [`LICENSE`](LICENSE).
+
+Known plural forms and recognized quotation, uncertainty or reversed-denial contexts
+are conservatively flagged for review. Direct simple denials remain exempt.
+These phrase rules can miss other paraphrases and are not semantic guarantees.
