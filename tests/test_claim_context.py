@@ -32,3 +32,19 @@ def test_reported_negation_regression():
     result = evaluate_explanation(CASE, "22/tcp was observed. This does not prove a vulnerability, and it is not a confirmed vulnerability. This limited scan is incomplete; verify the service configuration.")
     assert result["score"] == 100
     assert result["overclaims"] == []
+
+
+@pytest.mark.parametrize("statement, flagged", [
+    ("There are no security risks.", True),
+    ("This host is safe from attacks.", True),
+    ("These are confirmed vulnerabilities.", True),
+    ("These are not confirmed vulnerabilities.", False),
+    ("It is false that this is not a confirmed vulnerability.", True),
+    ("We cannot tell whether or not a confirmed vulnerability exists.", True),
+    ('The report says "not a confirmed vulnerability".', True),
+    ("This is not a confirmed vulnerability.", False),
+])
+def test_plural_and_ambiguous_contexts(statement, flagged):
+    result = evaluate_explanation(CASE, "22/tcp is open. This limited scan does not prove a vulnerability. Verify it. " + statement)
+    assert bool(result["overclaims"]) is flagged
+    assert (result["score"] < 100) is flagged

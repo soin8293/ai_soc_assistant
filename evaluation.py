@@ -29,13 +29,25 @@ DIRECT_DENIAL = re.compile(
 )
 
 
+# Contexts where an immediate denial cannot safely exempt the phrase.
+REVIEW_CONTEXT = re.compile(
+    r"\b(?:false|untrue|incorrect|wrong|whether|quote[ds]?|report(?:ed|s)?|says?|denies?|disputes?)\b"
+    r"|[\"“”]"
+)
+PLURALS = {"confirmed vulnerability": r"confirmed vulnerabilit(?:y|ies)",
+           "safe from attack": r"safe from attacks?",
+           "no security risk": r"no security risks?"}
+
+
 def asserted_phrases(text: str, phrases: tuple[str, ...]) -> list[str]:
     """Flag a phrase if any occurrence lacks a supported immediate denial."""
     text = text.lower()
     findings = []
     for phrase in phrases:
-        for match in re.finditer(r"\b" + re.escape(phrase) + r"\b", text):
-            if not DIRECT_DENIAL.search(text[:match.start()]):
+        pattern = PLURALS.get(phrase, re.escape(phrase))
+        for match in re.finditer(r"\b" + pattern + r"\b", text):
+            prefix = re.split(r"[.!?;\n]", text[:match.start()])[-1]
+            if REVIEW_CONTEXT.search(prefix) or not DIRECT_DENIAL.search(prefix):
                 findings.append(phrase)
                 break
     return findings
