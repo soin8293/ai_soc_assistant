@@ -23,7 +23,7 @@ OVERCLAIMS = (
 # Only immediate, explicit denials are exempted. This is not semantic parsing:
 # quotes, uncertainty, indirect denials and paraphrases still need human review.
 DIRECT_DENIAL = re.compile(
-    r"\b(?:not|isn't|isn’t|aren't|aren’t|wasn't|wasn’t|weren't|weren’t|"
+    r"\b(?:not|no|isn't|isn’t|aren't|aren’t|wasn't|wasn’t|weren't|weren’t|"
     r"(?:does not|doesn't|doesn’t|cannot|can't|can’t)\s+(?:prove|confirm|establish|show)|"
     r"no evidence of)\s+(?:(?:a|an|the)\s+)?$"
 )
@@ -31,8 +31,8 @@ DIRECT_DENIAL = re.compile(
 
 # Contexts where an immediate denial cannot safely exempt the phrase.
 REVIEW_CONTEXT = re.compile(
-    r"\b(?:false|untrue|incorrect|wrong|whether|quote[ds]?|report(?:ed|s)?|says?|denies?|disputes?)\b"
-    r"|[\"“”]"
+    r"\b(?:false|untrue|incorrect|wrong|whether|quote[ds]?|report(?:ed|s)?|says?|den(?:y|ies|ied|ying)|disputes?)\b"
+    r"|[\"“”]|(?<!\w)['‘]"
 )
 PLURALS = {"confirmed vulnerability": r"confirmed vulnerabilit(?:y|ies)",
            "safe from attack": r"safe from attacks?",
